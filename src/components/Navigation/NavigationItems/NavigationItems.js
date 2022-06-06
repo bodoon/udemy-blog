@@ -5,7 +5,7 @@ import './NavigationItems.css';
 
 const navItems = [
   { id: 'feed', text: 'Feed', link: '/', auth: true },
-  { id: 'login', text: 'Login', link: '/', auth: false },
+  { id: 'login', text: 'Login', link: '/login', auth: false },
   { id: 'signup', text: 'Signup', link: '/signup', auth: false }
 ];
 

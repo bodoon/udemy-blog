@@ -92,6 +92,7 @@ class App extends Component {
         );
         localStorage.setItem("expiryDate", expiryDate.toISOString());
         this.setAutoLogout(remainingMilliseconds);
+        this.props.history.replace("/");
       })
       .catch((err) => {
         console.log(err);
@@ -132,7 +133,7 @@ class App extends Component {
       .then((resData) => {
         console.log(resData);
         this.setState({ isAuth: false, authLoading: false });
-        this.props.history.replace("/");
+        this.props.history.replace("/login");
       })
       .catch((err) => {
         console.log(err);
@@ -158,7 +159,7 @@ class App extends Component {
     let routes = (
       <Switch>
         <Route
-          path="/"
+          path="/login"
           exact
           render={(props) => (
             <LoginPage
@@ -176,6 +177,23 @@ class App extends Component {
               {...props}
               onSignup={this.signupHandler}
               loading={this.state.authLoading}
+            />
+          )}
+        />
+        <Route
+          path="/"
+          exact
+          render={(props) => (
+            <FeedPage userId={this.state.userId} token={this.state.token} />
+          )}
+        />
+        <Route
+          path="/:postId"
+          render={(props) => (
+            <SinglePostPage
+              {...props}
+              userId={this.state.userId}
+              token={this.state.token}
             />
           )}
         />

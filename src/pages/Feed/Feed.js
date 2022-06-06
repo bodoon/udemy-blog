@@ -23,6 +23,30 @@ class Feed extends Component {
   };
 
   componentDidMount() {
+    if (this.props.token) {
+      this.fetchUserStatus();
+    }
+
+    this.loadPosts();
+    const socket = openSocket("https://udemy-blog-rest-api.herokuapp.com/");
+    socket.on("posts", (data) => {
+      if (data.action === "create") {
+        this.addPost(data.post);
+      } else if (data.action === "update") {
+        this.updatePost(data.post);
+      } else if (data.action === "delete") {
+        this.loadPosts();
+      }
+    });
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.props.token && prevProps.token !== this.props.token) {
+      this.fetchUserStatus();
+    }
+  }
+
+  fetchUserStatus = () => {
     fetch("https://udemy-blog-rest-api.herokuapp.com/user/status", {
       headers: {
         Authorization: `Bearer ${this.props.token}`,
@@ -38,19 +62,7 @@ class Feed extends Component {
         this.setState({ status: resData.status });
       })
       .catch(this.catchError);
-
-    this.loadPosts();
-    const socket = openSocket("https://udemy-blog-rest-api.herokuapp.com/");
-    socket.on("posts", (data) => {
-      if (data.action === "create") {
-        this.addPost(data.post);
-      } else if (data.action === "update") {
-        this.updatePost(data.post);
-      } else if (data.action === "delete") {
-        this.loadPosts();
-      }
-    });
-  }
+  };
 
   addPost = (post) => {
     this.setState((prevState) => {
@@ -185,7 +197,7 @@ class Feed extends Component {
     })
       .then((res) => {
         if (res.status !== 200 && res.status !== 201) {
-          throw new Error("Creating or editing a post failed!");
+          throw new Error("Only post creator can edit it!");
         }
         return res.json();
       })
@@ -223,7 +235,7 @@ class Feed extends Component {
     })
       .then((res) => {
         if (res.status !== 200 && res.status !== 201) {
-          throw new Error("Deleting a post failed!");
+          throw new Error("Only post creator can delete it!");
         }
         return res.json();
       })
@@ -237,7 +249,7 @@ class Feed extends Component {
       })
       .catch((err) => {
         console.log(err);
-        this.setState({ postsLoading: false });
+        this.setState({ postsLoading: false, error: err });
       });
   };
 
@@ -260,25 +272,33 @@ class Feed extends Component {
           onCancelEdit={this.cancelEditHandler}
           onFinishEdit={this.finishEditHandler}
         />
-        <section className="feed__status">
-          <form onSubmit={this.statusUpdateHandler}>
-            <Input
-              type="text"
-              placeholder="Your status"
-              control="input"
-              onChange={this.statusInputChangeHandler}
-              value={this.state.status}
-            />
-            <Button mode="flat" type="submit">
-              Update
-            </Button>
-          </form>
-        </section>
-        <section className="feed__control">
-          <Button mode="raised" design="accent" onClick={this.newPostHandler}>
-            New Post
-          </Button>
-        </section>
+        {this.props.token && (
+          <>
+            <section className="feed__status">
+              <form onSubmit={this.statusUpdateHandler}>
+                <Input
+                  type="text"
+                  placeholder="Your status"
+                  control="input"
+                  onChange={this.statusInputChangeHandler}
+                  value={this.state.status}
+                />
+                <Button mode="flat" type="submit">
+                  Update
+                </Button>
+              </form>
+            </section>
+            <section className="feed__control">
+              <Button
+                mode="raised"
+                design="accent"
+                onClick={this.newPostHandler}
+              >
+                New Post
+              </Button>
+            </section>
+          </>
+        )}
         <section className="feed">
           {this.state.postsLoading && (
             <div style={{ textAlign: "center", marginTop: "2rem" }}>
@@ -306,6 +326,7 @@ class Feed extends Component {
                   content={post.content}
                   onStartEdit={this.startEditPostHandler.bind(this, post._id)}
                   onDelete={this.deletePostHandler.bind(this, post._id)}
+                  isAuth={this.props.token}
                 />
               ))}
             </Paginator>
