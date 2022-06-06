@@ -12,6 +12,7 @@ import SinglePostPage from "./pages/Feed/SinglePost/SinglePost";
 import LoginPage from "./pages/Auth/Login";
 import SignupPage from "./pages/Auth/Signup";
 import "./App.css";
+import { apiBaseUrl } from "./util/api";
 
 class App extends Component {
   state = {
@@ -59,7 +60,7 @@ class App extends Component {
   loginHandler = (event, authData) => {
     event.preventDefault();
     this.setState({ authLoading: true });
-    fetch("https://udemy-blog-rest-api.herokuapp.com/auth/login", {
+    fetch(`${apiBaseUrl}/auth/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -107,7 +108,7 @@ class App extends Component {
   signupHandler = (event, authData) => {
     event.preventDefault();
     this.setState({ authLoading: true });
-    fetch("https://udemy-blog-rest-api.herokuapp.com/auth/signup", {
+    fetch(`${apiBaseUrl}/auth/signup`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

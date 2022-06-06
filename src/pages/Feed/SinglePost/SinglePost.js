@@ -2,6 +2,7 @@ import React, { Component } from "react";
 
 import Image from "../../../components/Image/Image";
 import "./SinglePost.css";
+import { apiBaseUrl } from "../../../util/api";
 
 class SinglePost extends Component {
   state = {
@@ -14,7 +15,7 @@ class SinglePost extends Component {
 
   componentDidMount() {
     const postId = this.props.match.params.postId;
-    fetch(`https://udemy-blog-rest-api.herokuapp.com/feed/post/${postId}`, {
+    fetch(`${apiBaseUrl}/feed/post/${postId}`, {
       headers: {
         Authorization: `Bearer ${this.props.token}`,
       },
@@ -31,7 +32,7 @@ class SinglePost extends Component {
           author: resData.post.creator.name,
           date: new Date(resData.post.createdAt).toLocaleDateString("en-US"),
           content: resData.post.content,
-          image: `https://udemy-blog-rest-api.herokuapp.com/${resData.post.imageUrl}`,
+          image: `${apiBaseUrl}/${resData.post.imageUrl}`,
         });
       })
       .catch((err) => {

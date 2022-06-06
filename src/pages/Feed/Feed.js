@@ -9,6 +9,7 @@ import Paginator from "../../components/Paginator/Paginator";
 import Loader from "../../components/Loader/Loader";
 import ErrorHandler from "../../components/ErrorHandler/ErrorHandler";
 import "./Feed.css";
+import { apiBaseUrl } from "../../util/api";
 
 class Feed extends Component {
   state = {
@@ -28,7 +29,7 @@ class Feed extends Component {
     }
 
     this.loadPosts();
-    const socket = openSocket("https://udemy-blog-rest-api.herokuapp.com/");
+    const socket = openSocket(`${apiBaseUrl}`);
     socket.on("posts", (data) => {
       if (data.action === "create") {
         this.addPost(data.post);
@@ -47,7 +48,7 @@ class Feed extends Component {
   }
 
   fetchUserStatus = () => {
-    fetch("https://udemy-blog-rest-api.herokuapp.com/user/status", {
+    fetch(`${apiBaseUrl}/user/status`, {
       headers: {
         Authorization: `Bearer ${this.props.token}`,
       },
@@ -108,7 +109,7 @@ class Feed extends Component {
       page--;
       this.setState({ postPage: page });
     }
-    fetch(`https://udemy-blog-rest-api.herokuapp.com/feed/posts?page=${page}`, {
+    fetch(`${apiBaseUrl}/feed/posts?page=${page}`, {
       headers: {
         Authorization: `Bearer ${this.props.token}`,
       },
@@ -134,7 +135,7 @@ class Feed extends Component {
 
   statusUpdateHandler = (event) => {
     event.preventDefault();
-    fetch("https://udemy-blog-rest-api.herokuapp.com/user/status", {
+    fetch(`${apiBaseUrl}/user/status`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -181,10 +182,10 @@ class Feed extends Component {
     formData.append("title", postData.title);
     formData.append("content", postData.content);
     formData.append("image", postData.image);
-    let url = "https://udemy-blog-rest-api.herokuapp.com/feed/post";
+    let url = `${apiBaseUrl}/feed/post`;
     let method = "POST";
     if (this.state.editPost) {
-      url = `https://udemy-blog-rest-api.herokuapp.com/feed/post/${this.state.editPost._id}`;
+      url = `${apiBaseUrl}/feed/post/${this.state.editPost._id}`;
       method = "PUT";
     }
 
@@ -227,7 +228,7 @@ class Feed extends Component {
 
   deletePostHandler = (postId) => {
     this.setState({ postsLoading: true });
-    fetch(`https://udemy-blog-rest-api.herokuapp.com/feed/post/${postId}`, {
+    fetch(`${apiBaseUrl}/feed/post/${postId}`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${this.props.token}`,
